@@ -1,0 +1,92 @@
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
+const { VueLoaderPlugin } = require('vue-loader')
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+
+const cssLoader = {
+  loader: 'css-loader',
+  options: {
+    esModule: false
+  }
+}
+
+const mode = process.env.NODE_ENV || 'production'
+
+module.exports = {
+  mode,
+  resolve: {
+    alias: {
+      utils: path.resolve(__dirname, 'src', 'utils'),
+      styles: path.resolve(__dirname, 'src', 'styles'),
+      assets: path.resolve(__dirname, 'assets')
+    },
+    extensions: ['.js', '.vue', '.json'] // added for better DX
+  },
+  module: {
+    rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.css$/,
+        use: ['vue-style-loader', cssLoader]
+      },
+      {
+        test: /\.styl(us)?$/,
+        use: ['vue-style-loader', cssLoader, 'stylus-loader']
+      },
+      {
+        test: /\.pug$/,
+        loader: 'pug-plain-loader'
+      },
+      {
+        test: /\.(png|svg|jpg|gif|pdf)$/i,
+        type: 'asset/resource'
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource'
+      },
+      {
+        test: /\.ya?ml$/,
+        loader: 'yaml-import-loader'
+      }
+    ]
+  },
+  devServer: {
+    historyApiFallback: true,
+    static: {
+      directory: path.resolve(__dirname, './dist')
+    },
+    open: true,
+    compress: true,
+    hot: true,
+    port: 8080,
+    allowedHosts: ['.ngrok.io']
+  },
+  entry: {
+    main: path.resolve(__dirname, './src/index.js')
+  },
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: '[name].bundle.js',
+    clean: true // ensures old builds are cleaned
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Nexo',
+      template: path.resolve(__dirname, './src/template.html'),
+      filename: 'index.html'
+    }),
+    new FaviconsWebpackPlugin('./assets/_logo.svg'),
+    new webpack.HotModuleReplacementPlugin(),
+    new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      __VUE_OPTIONS_API__: JSON.stringify(true),
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(false)
+    })
+  ],
+  devtool: mode === 'development' ? 'eval-cheap-source-map' : 'source-map'
+}
