@@ -1,0 +1,19 @@
+os: linux
+language: node_js
+node_js: 15.10
+
+install:
+  - yarn install --frozen-lockfile
+
+before_script:
+  - yarn build
+
+deploy:
+  provider: pages
+  strategy: git
+  local_dir: dist
+  skip_cleanup: true
+  keep_history: true
+  github_token: $GITHUB_TOKEN
+  on:
+    branch: master
