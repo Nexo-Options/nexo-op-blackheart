@@ -1,0 +1,27 @@
+import { createStore } from 'vuex'
+import modules from './modules'
+
+const store = createStore({
+  modules,
+  getters: {
+    account: ({ connection }) => connection.accounts[0]
+  },
+  actions: {
+    async init({ dispatch }) {
+      // Initialize all dependent modules
+      await dispatch('tokens/updateBalances')
+      await dispatch('staking/init')
+      await dispatch('assets/load')
+      await dispatch('pricer/load')
+      await dispatch('pool/update')
+    }
+  }
+})
+
+// Reset cached wallet provider on app load
+store.dispatch('connection/resetCached')
+
+// Expose store globally for debugging
+window.s = store
+
+export default store
