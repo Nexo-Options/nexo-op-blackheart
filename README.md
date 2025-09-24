@@ -1,4 +1,4 @@
-# Nexo Frontend
+# Nexo
 
 Open source front-end for **Nexo**.
 
